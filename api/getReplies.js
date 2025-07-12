@@ -1,1 +1,1 @@
-// getReplies.js placeholder
+PLACEHOLDER: Simple fetch for replies using in-memory object.
