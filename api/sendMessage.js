@@ -1,1 +1,0 @@
-PLACEHOLDER: Backend that logs IP, parses user-agent with ua-parser-js, fetches location from ipapi.co, distinguishes [VALID]/[INVALID], formats message for Telegram bot.

@@ -1,1 +1,0 @@
-PLACEHOLDER: Simple fetch for replies using in-memory object.
