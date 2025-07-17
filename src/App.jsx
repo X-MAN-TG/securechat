@@ -11,7 +11,6 @@ const App = () => {
   const [replies, setReplies] = useState([]);
 
   useEffect(() => {
-    // Generate or restore persistent session
     let existingSession = sessionStorage.getItem('projectx-session');
     if (!existingSession) {
       existingSession = uuidv4();
@@ -36,33 +35,32 @@ const App = () => {
 
   if (!started) {
     return (
-      <div className="popup-backdrop">
-        <div className="popup-content">
+      <div className="popup-backdrop gradient-background">
+        <div className="popup-content modern-box">
           <h2>✨ Welcome to Project X</h2>
-          <p>A highly encrypted two-way communication portal.<br />Your identity is safe.</p>
+          <p className="subtext">A secure, encrypted chat for special moments.<br />Your identity is safe with us.</p>
           <input
             type="text"
-            placeholder="Enter your name:"
+            placeholder="Enter your name"
             value={name}
             onChange={e => setName(e.target.value)}
           />
-          <button onClick={handleStart}>Start chatting</button>
+          <button className="primary-button" onClick={handleStart}>Start chatting</button>
 
           <div className="info-block">
-            <h3>Project X Chat</h3>
-            <p><b>What is this project for?</b><br />
-            This is a project X chat Developed and crafted with love For his lost friend. This is a 2 way highly protected live chat feed online platform</p>
+            <h3>What is this project?</h3>
+            <p>This is Project X Chat — a live, encrypted communication platform created with love for a lost friend. It's a two-way protected interface to resolve past misunderstandings.</p>
 
-            <p><b>Purpose of X Chat?</b><br />
-            There are some misunderstandings and problems between client and Developer X MAN. He has some doubts and questions. To solve this is the most protected 2 way interface.</p>
+            <h3>Purpose</h3>
+            <p>The client and developer, X MAN, have unresolved questions. This secure chat serves as their bridge.</p>
 
-            <p><b>Privacy and data?</b><br />
-            None of your data is saved, all data is encrypted and secure</p>
+            <h3>Privacy</h3>
+            <p>No data is stored. Everything is encrypted and confidential.</p>
 
-            <p><b>How to use?</b><br />
-            Just Type your message or hello like on other platforms and the message will be Dilevered to X MAN</p>
+            <h3>How to Use</h3>
+            <p>Type your message — it’ll be delivered directly to X MAN. No signups, no tracking.</p>
 
-            <p>For more info request Dev.</p>
+            <p><i>For more information, contact the developer.</i></p>
           </div>
         </div>
       </div>
@@ -81,7 +79,7 @@ const App = () => {
         onReply={handleReceiveReply}
       />
       <div className="dev-credit">
-        🛠 Developed by <a href="https://t.me/Mr_Panda_Boy" target="_blank" rel="noopener noreferrer">X MAN</a> for his lost friend
+        🛠 <a href="https://t.me/Mr_Panda_Boy" target="_blank" rel="noopener noreferrer">Developed by X MAN</a> for his lost friend
       </div>
     </div>
   );
