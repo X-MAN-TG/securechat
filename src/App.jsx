@@ -1,88 +1,113 @@
-import React, { useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import ChatBox from './components/ChatBox';
-import NotificationPopup from './components/NotificationPopup';
+import React, { useState, useEffect, useRef } from 'react';
+import MessageBubble from './MessageBubble';
+import PasswordPrompt from './PasswordPrompt';
 
-const App = () => {
-  const [name, setName] = useState('');
-  const [sessionId, setSessionId] = useState('');
-  const [started, setStarted] = useState(false);
-  const [messages, setMessages] = useState([]);
-  const [replies, setReplies] = useState([]);
+const ChatBox = ({ name, sessionId, messages, replies, onSend, onReply }) => {
+  const [input, setInput] = useState('');
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+  const [pendingMessage, setPendingMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const messageEndRef = useRef(null);
 
   useEffect(() => {
-    let existingSession = sessionStorage.getItem('projectx-session');
-    if (!existingSession) {
-      existingSession = uuidv4();
-      sessionStorage.setItem('projectx-session', existingSession);
+    const ws = new WebSocket(`wss://${window.location.host}/ws?session=${sessionId}`);
+    ws.onmessage = e => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data.type === 'reply') {
+          onReply(data.payload);
+        }
+      } catch (err) {
+        console.error('Error parsing message:', err);
+      }
+    };
+    return () => ws.close();
+  }, [sessionId]);
+
+  const handleSendClick = () => {
+    if (input.trim()) {
+      setPendingMessage(input);
+      setShowPasswordPrompt(true);
     }
-    setSessionId(existingSession);
-  }, []);
+  };
 
-  const handleStart = () => {
-    if (name.trim()) {
-      setStarted(true);
+  const handlePasswordSubmit = async (password) => {
+    setIsSending(true);
+    setErrorMsg('');
+    const payload = {
+      name,
+      message: pendingMessage,
+      password,
+      sessionId,
+    };
+
+    try {
+      const res = await fetch('/api/send-message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        onSend({ text: pendingMessage, timestamp: new Date().toISOString() });
+      } else {
+        setErrorMsg('❌ Invalid password or failed to send.');
+      }
+    } catch (err) {
+      console.error('Send error:', err);
+      setErrorMsg('🚫 Error sending message.');
+    } finally {
+      setIsSending(false);
+      setInput('');
+      setPendingMessage('');
+      setShowPasswordPrompt(false);
     }
   };
 
-  const handleSendMessage = (msg) => {
-    setMessages(prev => [...prev, msg]);
-  };
-
-  const handleReceiveReply = (reply) => {
-    setReplies(prev => [...prev, reply]);
-  };
-
-  if (!started) {
-    return (
-      <div className="popup-backdrop gradient-background">
-        <div className="popup-content modern-box">
-          <h2>✨ Welcome to Project X</h2>
-          <p className="subtext">A secure, encrypted chat for special moments.<br />Your identity is safe with us.</p>
-          <input
-            type="text"
-            placeholder="Enter your name"
-            value={name}
-            onChange={e => setName(e.target.value)}
-          />
-          <button className="primary-button" onClick={handleStart}>Start chatting</button>
-
-          <div className="info-block">
-            <h3>What is this project?</h3>
-            <p>This is Project X Chat — a live, encrypted communication platform created with love for a lost friend. It's a two-way protected interface to resolve past misunderstandings.</p>
-
-            <h3>Purpose</h3>
-            <p>The client and developer, X MAN, have unresolved questions. This secure chat serves as their bridge.</p>
-
-            <h3>Privacy</h3>
-            <p>No data is stored. Everything is encrypted and confidential.</p>
-
-            <h3>How to Use</h3>
-            <p>Type your message — it’ll be delivered directly to X MAN. No signups, no tracking.</p>
-
-            <p><i>For more information, contact the developer.</i></p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, replies]);
 
   return (
-    <div className="app-container">
-      <NotificationPopup />
-      <ChatBox
-        name={name}
-        sessionId={sessionId}
-        messages={messages}
-        replies={replies}
-        onSend={handleSendMessage}
-        onReply={handleReceiveReply}
-      />
-      <div className="dev-credit">
-        🛠 <a href="https://t.me/Mr_Panda_Boy" target="_blank" rel="noopener noreferrer">Developed by X MAN</a> for his lost friend
+    <div className="chatbox">
+      <div className="messages">
+        {messages.map((msg, idx) => (
+          <MessageBubble key={`m-${idx}`} sender="client" text={msg.text} timestamp={msg.timestamp} />
+        ))}
+        {replies.map((rep, idx) => (
+          <MessageBubble key={`r-${idx}`} sender="admin" text={rep.text} timestamp={rep.timestamp} />
+        ))}
+        <div ref={messageEndRef} />
       </div>
+
+      <div className="input-area">
+        <input
+          type="text"
+          placeholder="Type your message..."
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          disabled={isSending}
+        />
+        <button onClick={handleSendClick} disabled={!input.trim() || isSending}>
+          {isSending ? 'Sending...' : 'Send'}
+        </button>
+      </div>
+
+      {errorMsg && <p className="error-text">{errorMsg}</p>}
+
+      {showPasswordPrompt && (
+        <PasswordPrompt
+          onSubmit={handlePasswordSubmit}
+          onClose={() => {
+            setShowPasswordPrompt(false);
+            setPendingMessage('');
+          }}
+        />
+      )}
     </div>
   );
 };
 
-export default App;
+export default ChatBox;
