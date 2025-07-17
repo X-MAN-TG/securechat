@@ -1,0 +1,225 @@
+/* General Reset */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: space-between;
+}
+
+/* Welcome, Notification, Password Popups */
+.popup-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  background: #1e293b;
+  padding: 2rem;
+  border-radius: 1rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 0 15px #000;
+  animation: popupFade 0.3s ease-out;
+}
+
+.popup-content h2 {
+  margin-top: 0;
+  color: #38bdf8;
+}
+
+.popup-content p {
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.popup-content input {
+  width: 100%;
+  padding: 0.7rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  border: none;
+  font-size: 1rem;
+}
+
+.popup-content button {
+  padding: 0.7rem 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: #3b82f6;
+  color: white;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.popup-content button:hover {
+  background-color: #2563eb;
+  transform: scale(1.05);
+}
+
+.popup-content .secondary {
+  background-color: #64748b;
+}
+
+.hint-section {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1rem;
+}
+
+.hint-image {
+  text-align: center;
+}
+
+.hint-image img {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  border: 2px solid #facc15;
+}
+
+/* Info Box in Welcome */
+.info-block {
+  margin-top: 2rem;
+  background-color: #0f172a;
+  border-top: 2px solid #38bdf8;
+  padding-top: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Chat UI */
+.chatbox {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 65vh;
+}
+
+.input-area {
+  display: flex;
+  padding: 1rem;
+  background: #1e293b;
+}
+
+.input-area input {
+  flex-grow: 1;
+  padding: 0.7rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  margin-right: 0.5rem;
+}
+
+.input-area button {
+  padding: 0.7rem 1.2rem;
+  background-color: #22c55e;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.input-area button:hover {
+  background-color: #16a34a;
+  transform: scale(1.05);
+}
+
+/* Message Bubbles */
+.bubble-wrapper {
+  margin-bottom: 1rem;
+  display: flex;
+}
+
+.bubble-wrapper.right {
+  justify-content: flex-end;
+}
+
+.bubble-wrapper.left {
+  justify-content: flex-start;
+}
+
+.bubble {
+  padding: 0.8rem;
+  border-radius: 1rem;
+  max-width: 75%;
+  position: relative;
+  animation: popIn 0.2s ease;
+}
+
+.bubble.client {
+  background: #0ea5e9;
+  color: white;
+  border-bottom-right-radius: 0;
+}
+
+.bubble.admin {
+  background: #facc15;
+  color: #0f172a;
+  border-bottom-left-radius: 0;
+}
+
+.bubble-text {
+  display: block;
+}
+
+.bubble-time {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* Developer Credit */
+.dev-credit {
+  text-align: center;
+  padding: 1rem;
+  background-color: #1e293b;
+  font-size: 0.95rem;
+  color: #facc15;
+  font-weight: bold;
+  font-family: 'Courier New', Courier, monospace;
+  border-top: 2px solid #334155;
+}
+
+.dev-credit a {
+  color: #38bdf8;
+  text-decoration: none;
+}
+
+.dev-credit a:hover {
+  text-decoration: underline;
+}
+
+/* Animations */
+@keyframes popupFade {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
