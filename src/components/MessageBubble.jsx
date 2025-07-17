@@ -1,5 +1,5 @@
 import React from 'react';
-import '../style.css';
+import '../../style.css';
 
 const MessageBubble = ({ sender, text, timestamp }) => {
   const formattedTime = new Date(timestamp).toLocaleTimeString([], {
