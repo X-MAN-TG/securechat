@@ -1,6 +1,6 @@
 body { margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b0c10; color: #fff; }
 
-#chatContainer { display: flex; flex-direction: column; height: 100vh; max-width: 600px; margin: 0 auto; background-color: #1f2833; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); border-radius: 12px; overflow: hidden; }
+#chatContainer { display: flex; flex-direction: column; height: 100vh; max-width: 600px; margin: 0 auto; background-color: #1f2833; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); border-radius: 12px; overflow: hidden; position: relative; }
 
 #chatBox { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background-color: #1f2833; }
 
@@ -10,9 +10,11 @@ body { margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, 
 
 .message.received { align-self: flex-start; background-color: #c5c6c7; color: #0b0c10; border-bottom-left-radius: 4px; }
 
-#messageInput { padding: 14px; border: none; border-top: 1px solid #333; outline: none; font-size: 16px; resize: none; width: 100%; background-color: #0b0c10; color: white; }
+#messageInputArea { display: flex; align-items: center; padding: 12px; background-color: #0b0c10; border-top: 1px solid #333; gap: 8px; }
 
-#sendMessage { background-color: #45a29e; color: white; padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 10px; align-self: flex-end; transition: background 0.3s ease; }
+#messageInput { flex: 1; padding: 12px; border: none; border-radius: 20px; outline: none; font-size: 16px; resize: none; background-color: #1f2833; color: white; }
+
+#sendMessage { background-color: #45a29e; color: white; padding: 10px 16px; border: none; border-radius: 50%; cursor: pointer; transition: background 0.3s ease; font-size: 16px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; }
 
 #sendMessage:hover { background-color: #66fcf1; color: #0b0c10; }
 
@@ -26,9 +28,9 @@ body { margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, 
 
 .popup-content button:hover { background-color: #66fcf1; color: #0b0c10; }
 
-#hintContainer { display: flex; justify-content: center; margin-top: 14px; gap: 10px; }
+#hintContainer { display: flex; justify-content: space-around; margin-top: 14px; }
 
-#hintContainer img { width: 36px; height: 36px; object-fit: cover; border-radius: 8px; border: 2px solid #66fcf1; }
+#hintContainer img { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; border: 2px solid #66fcf1; }
 
 footer { text-align: center; padding: 12px; font-size: 13px; color: #888; }
 
@@ -49,20 +51,4 @@ footer a { color: #66fcf1; text-decoration: none; }
 .bubble-text { margin: 0; }
 
 .bubble-time { font-size: 12px; color: #ccc; position: absolute; bottom: -18px; right: 12px; }
-
-/* Chat input bar style */ #chatInputContainer { display: flex; align-items: center; padding: 12px; background-color: #0b0c10; border-top: 1px solid #1f2833; }
-
-#chatInputContainer input[type="text"] { flex: 1; padding: 12px; border-radius: 20px; border: none; background-color: #1f2833; color: white; font-size: 15px; margin-right: 10px; }
-
-#chatInputContainer button { background-color: #45a29e; color: white; padding: 10px 16px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; transition: background 0.3s ease; }
-
-#chatInputContainer button:hover { background-color: #66fcf1; color: #0b0c10; }
-
-.success-popup, .error-popup { position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: bold; z-index: 1000; animation: fadeout 4s forwards; }
-
-.success-popup { background-color: #4aa96c; color: white; }
-
-.error-popup { background-color: #ff4d4d; color: white; }
-
-@keyframes fadeout { 0% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; display: none; } }
 
