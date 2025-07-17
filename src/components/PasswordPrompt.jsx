@@ -1,39 +1,47 @@
 import React, { useEffect, useState } from 'react';
 
-const NotificationPopup = () => {
-  const [shown, setShown] = useState(false);
+const PasswordPrompt = ({ onSubmit, onClose }) => {
+  const [password, setPassword] = useState('');
+  const [hint, setHint] = useState('');
 
   useEffect(() => {
-    const hasAsked = localStorage.getItem('askedNotification');
-    if (!hasAsked && Notification.permission !== 'granted') {
-      setShown(true);
-      localStorage.setItem('askedNotification', 'yes');
-    }
+    // Randomly select one of the hint images
+    const hints = ['/hint1.jpg', '/hint2.jpg', '/hint3.jpg'];
+    const randomHint = hints[Math.floor(Math.random() * hints.length)];
+    setHint(randomHint);
   }, []);
 
-  const requestPermission = () => {
-    Notification.requestPermission().then(permission => {
-      if (permission === 'granted') {
-        new Notification('🔔 Notifications enabled!', {
-          body: 'You will receive replies from X MAN instantly.',
-          icon: '/hint2.jpg'
-        });
-      }
-      setShown(false);
-    });
+  const handleSubmit = () => {
+    onSubmit(password);
   };
-
-  if (!shown) return null;
 
   return (
     <div className="popup-backdrop">
-      <div className="popup-content notification-box">
-        <h2>🔔 Enable Notifications</h2>
-        <p>To receive real-time replies from the developer (X MAN), please allow browser notifications.</p>
-        <button onClick={requestPermission}>Allow Notifications</button>
+      <div className="popup-content">
+        <h2>🔒 Enter Password</h2>
+        <p>Enter the password to send your message. Refer to the hint below:</p>
+        {hint && (
+          <div className="hint-section">
+            <div className="hint-image">
+              <img src={hint} alt="Password hint" />
+            </div>
+          </div>
+        )}
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+        />
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+          <button onClick={handleSubmit}>Submit</button>
+          <button onClick={onClose} style={{ backgroundColor: '#dc2626' }}>
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
-export default NotificationPopup;
+export default PasswordPrompt;
