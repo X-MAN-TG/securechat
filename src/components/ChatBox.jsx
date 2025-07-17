@@ -1,102 +1,156 @@
-import React, { useState, useEffect, useRef } from 'react';
-import MessageBubble from './MessageBubble';
-import PasswordPrompt from './PasswordPrompt';
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #0b0c10;
+  color: #fff;
+}
 
-const ChatBox = ({ name, sessionId, messages, replies, onSend, onReply }) => {
-  const [input, setInput] = useState('');
-  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
-  const [pendingMessage, setPendingMessage] = useState('');
-  const [socket, setSocket] = useState(null);
-  const messageEndRef = useRef(null);
+#chatContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #1f2833;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
+}
 
-  useEffect(() => {
-    const ws = new WebSocket(`ws://localhost:3000/ws?session=${sessionId}`);
-    ws.onmessage = e => {
-      try {
-        const data = JSON.parse(e.data);
-        if (data.type === 'reply') {
-          onReply(data.payload);
-        }
-      } catch (err) {
-        console.error('Error parsing message:', err);
-      }
-    };
-    ws.onopen = () => console.log('WebSocket connected');
-    ws.onclose = () => console.warn('WebSocket disconnected');
+#chatBox {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #1f2833;
+}
 
-    setSocket(ws);
-    return () => ws.close();
-  }, [sessionId]);
+.message {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 15px;
+  line-height: 1.4;
+  position: relative;
+  word-break: break-word;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.2s ease-in-out;
+}
 
-  const handleSendClick = () => {
-    if (input.trim() !== '') {
-      setPendingMessage(input);
-      setShowPasswordPrompt(true);
-    }
-  };
+.message.sent {
+  align-self: flex-end;
+  background-color: #4aa96c;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
 
-  const handlePasswordSubmit = async password => {
-    const payload = {
-      name,
-      message: pendingMessage,
-      password,
-      sessionId,
-    };
+.message.received {
+  align-self: flex-start;
+  background-color: #c5c6c7;
+  color: #0b0c10;
+  border-bottom-left-radius: 4px;
+}
 
-    try {
-      const res = await fetch('/api/send-message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+#messageInput {
+  padding: 14px;
+  border: none;
+  border-top: 1px solid #333;
+  outline: none;
+  font-size: 16px;
+  resize: none;
+  width: 100%;
+  background-color: #0b0c10;
+  color: white;
+}
 
-      const data = await res.json();
-      if (data.success) {
-        onSend({ text: pendingMessage, timestamp: new Date().toISOString() });
-      }
-    } catch (err) {
-      console.error('Message sending failed:', err);
-    }
+#sendMessage {
+  background-color: #45a29e;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  margin: 10px;
+  align-self: flex-end;
+  transition: background 0.3s ease;
+}
 
-    setPendingMessage('');
-    setInput('');
-    setShowPasswordPrompt(false);
-  };
+#sendMessage:hover {
+  background-color: #66fcf1;
+  color: #0b0c10;
+}
 
-  useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, replies]);
+.popup {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
 
-  return (
-    <div className="chatbox">
-      <div className="messages">
-        {messages.map((msg, idx) => (
-          <MessageBubble key={`m-${idx}`} sender="client" text={msg.text} timestamp={msg.timestamp} />
-        ))}
-        {replies.map((rep, idx) => (
-          <MessageBubble key={`r-${idx}`} sender="admin" text={rep.text} timestamp={rep.timestamp} />
-        ))}
-        <div ref={messageEndRef} />
-      </div>
+.popup-content {
+  background-color: #1f2833;
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
 
-      <div className="input-area">
-        <input
-          type="text"
-          placeholder="Type your message..."
-          value={input}
-          onChange={e => setInput(e.target.value)}
-        />
-        <button onClick={handleSendClick}>Send</button>
-      </div>
+.popup-content input,
+.popup-content button {
+  margin-top: 12px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+}
 
-      {showPasswordPrompt && (
-        <PasswordPrompt
-          onSubmit={handlePasswordSubmit}
-          onClose={() => setShowPasswordPrompt(false)}
-        />
-      )}
-    </div>
-  );
-};
+.popup-content button {
+  background-color: #45a29e;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+}
 
-export default ChatBox;
+.popup-content button:hover {
+  background-color: #66fcf1;
+  color: #0b0c10;
+}
+
+#hintContainer {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 14px;
+}
+
+#hintContainer img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #66fcf1;
+}
+
+footer {
+  text-align: center;
+  padding: 12px;
+  font-size: 13px;
+  color: #888;
+}
+
+footer a {
+  color: #66fcf1;
+  text-decoration: none;
+}
