@@ -10,8 +10,13 @@ const MessageBubble = ({ sender, text, timestamp }) => {
   return (
     <div className={`bubble-wrapper ${sender === 'client' ? 'right' : 'left'}`}>
       <div className={`bubble ${sender}`}>
-        <span className="bubble-text">{text}</span>
-        <span className="bubble-time">{formattedTime}</span>
+        <div className="bubble-header">
+          <span className="bubble-sender">{sender === 'client' ? 'You' : 'X MAN'}</span>
+          <span className="bubble-time">{formattedTime}</span>
+        </div>
+        <div className="bubble-body">
+          <span className="bubble-text">{text}</span>
+        </div>
       </div>
     </div>
   );
