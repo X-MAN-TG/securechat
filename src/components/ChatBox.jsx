@@ -1,156 +1,103 @@
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #0b0c10;
-  color: #fff;
-}
+import React, { useState, useEffect } from 'react';
+import MessageBubble from './MessageBubble';
+import NotificationPopup from './NotificationPopup';
 
-#chatContainer {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  max-width: 600px;
-  margin: 0 auto;
-  background-color: #1f2833;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
-  overflow: hidden;
-}
+const ChatBox = () => {
+  const [messages, setMessages] = useState(() => {
+    const stored = localStorage.getItem('messages');
+    return stored ? JSON.parse(stored) : [];
+  });
 
-#chatBox {
-  flex: 1;
-  padding: 16px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background-color: #1f2833;
-}
+  const [message, setMessage] = useState('');
+  const [showPasswordPopup, setShowPasswordPopup] = useState(false);
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
 
-.message {
-  max-width: 75%;
-  padding: 10px 14px;
-  border-radius: 18px;
-  font-size: 15px;
-  line-height: 1.4;
-  position: relative;
-  word-break: break-word;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  transition: all 0.2s ease-in-out;
-}
+  useEffect(() => {
+    localStorage.setItem('messages', JSON.stringify(messages));
+  }, [messages]);
 
-.message.sent {
-  align-self: flex-end;
-  background-color: #4aa96c;
-  color: white;
-  border-bottom-right-radius: 4px;
-}
+  const sendToTelegram = async (msg, pwd) => {
+    try {
+      await fetch('/api/send-message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: msg, password: pwd, name })
+      });
+      setShowPopup(true);
+      setTimeout(() => setShowPopup(false), 2500);
+    } catch (err) {
+      console.error('Telegram Error:', err);
+    }
+  };
 
-.message.received {
-  align-self: flex-start;
-  background-color: #c5c6c7;
-  color: #0b0c10;
-  border-bottom-left-radius: 4px;
-}
+  const handleSend = () => {
+    if (!message.trim()) return;
+    setShowPasswordPopup(true);
+  };
 
-#messageInput {
-  padding: 14px;
-  border: none;
-  border-top: 1px solid #333;
-  outline: none;
-  font-size: 16px;
-  resize: none;
-  width: 100%;
-  background-color: #0b0c10;
-  color: white;
-}
+  const confirmSend = () => {
+    const newMsg = {
+      text: message,
+      sender: 'client',
+      timestamp: new Date().toISOString()
+    };
+    setMessages([...messages, newMsg]);
+    sendToTelegram(message, password);
+    setMessage('');
+    setPassword('');
+    setShowPasswordPopup(false);
+  };
 
-#sendMessage {
-  background-color: #45a29e;
-  color: white;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  margin: 10px;
-  align-self: flex-end;
-  transition: background 0.3s ease;
-}
+  return (
+    <div id="chatContainer">
+      <div id="chatBox">
+        {messages.map((msg, i) => (
+          <MessageBubble key={i} {...msg} />
+        ))}
+      </div>
 
-#sendMessage:hover {
-  background-color: #66fcf1;
-  color: #0b0c10;
-}
+      <div style={{ display: 'flex', padding: '8px' }}>
+        <input
+          type="text"
+          placeholder="Type your message..."
+          value={message}
+          onChange={e => setMessage(e.target.value)}
+          id="messageInput"
+        />
+        <button id="sendMessage" onClick={handleSend}>Send</button>
+      </div>
 
-.popup {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.75);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
+      {showPasswordPopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <h3>Enter password</h3>
+            <div id="hintContainer">
+              <img src="/hint1.jpg" alt="hint1" />
+              <img src="/hint2.jpg" alt="hint2" />
+              <img src="/hint3.jpg" alt="hint3" />
+            </div>
+            <input
+              type="password"
+              placeholder="Password..."
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Enter your name..."
+              value={name}
+              onChange={e => setName(e.target.value)}
+            />
+            <button onClick={confirmSend}>Submit</button>
+          </div>
+        </div>
+      )}
 
-.popup-content {
-  background-color: #1f2833;
-  padding: 24px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 400px;
-  text-align: center;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-}
+      {showPopup && <NotificationPopup text="✅ Message sent" />}
+    </div>
+  );
+};
 
-.popup-content input,
-.popup-content button {
-  margin-top: 12px;
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-}
-
-.popup-content button {
-  background-color: #45a29e;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 20px;
-}
-
-.popup-content button:hover {
-  background-color: #66fcf1;
-  color: #0b0c10;
-}
-
-#hintContainer {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 14px;
-}
-
-#hintContainer img {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 2px solid #66fcf1;
-}
-
-footer {
-  text-align: center;
-  padding: 12px;
-  font-size: 13px;
-  color: #888;
-}
-
-footer a {
-  color: #66fcf1;
-  text-decoration: none;
-}
+export default ChatBox;
